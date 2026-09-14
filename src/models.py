@@ -15,8 +15,9 @@ def ask_model(prompt, model=DEFAULT_MODEL, timeout=600):
             }
         ],
         "stream": False,
+        "think": False,
         "options": {
-            "num_predict": 250
+            "num_predict": 500
         }
     }
 

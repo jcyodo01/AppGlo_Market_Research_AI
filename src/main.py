@@ -1,6 +1,7 @@
 from search import search_web
 from models import ask_model
 import time
+from search import research_company
 
 
 def format_results(results):
@@ -22,67 +23,19 @@ Content:
 def main():
     company = input("Company to research: ")
 
-    print(f"\nSearching for Jira/Atlassian evidence about {company}...\n")
+    print(f"\nResearching {company}...\n")
 
-    results = search_web(
-        f'"{company}" Jira Atlassian',
-        max_results=3
-    )
+    research = research_company(company)
 
-    evidence = format_results(results)
+    print("\n--- RESEARCH RESULTS ---")
 
-    print("Search complete.")
-    print("Sending evidence to Qwen...\n")
+    for category, results in research.items():
+        print(f"\n=== {category.upper()} ===")
 
-    prompt = f"""
-You are evaluating a company for B2B market research.
-
-COMPANY:
-{company}
-
-Your task is to determine whether the provided evidence
-shows that the company itself uses Jira or Atlassian products.
-
-IMPORTANT RULES:
-
-1. Use ONLY the evidence provided below.
-2. Do not use prior knowledge.
-3. Do not assume that a product integration means the company
-   internally uses Jira.
-4. Distinguish between:
-   - Direct evidence
-   - Indirect evidence
-   - Insufficient evidence
-5. If the evidence does not prove something, say so.
-6. Cite the source numbers that support your conclusion.
-
-EVIDENCE:
-
-{evidence}
-
-AAnswer using EXACTLY this format:
-
-Conclusion: Yes / No / Unclear
-Evidence strength: High / Medium / Low
-Reasoning: No more than 2 sentences.
-Best sources: List source numbers only.
-
-Keep the entire response under 120 words.
-Do not provide hidden reasoning or step-by-step analysis.
-"""
-    print(f"Prompt length: {len(prompt):,} characters")
-    print(f"Approximate tokens: {len(prompt) // 4:,}")
-
-    start_time = time.time()
-
-    response = ask_model(prompt)
-
-    elapsed = time.time() - start_time
-
-    print(f"\nModel response time: {elapsed:.1f} seconds")
-
-    print("--- AI Evaluation ---")
-    print(response)
+        for i, result in enumerate(results, start=1):
+            print(f"\n[{i}] {result['title']}")
+            print(result["content"])
+            print(result["url"])
 
 
 if __name__ == "__main__":
