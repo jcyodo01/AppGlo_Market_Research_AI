@@ -1,23 +1,5 @@
-from search import search_web
-from models import ask_model
-import time
 from search import research_company
-
-
-def format_results(results):
-    evidence = ""
-
-    for i, result in enumerate(results, start=1):
-        evidence += f"""
-SOURCE {i}
-Title: {result['title']}
-URL: {result['url']}
-Content:
-{result['content']}
-
-"""
-
-    return evidence
+from scoring import score_company
 
 
 def main():
@@ -27,15 +9,30 @@ def main():
 
     research = research_company(company)
 
-    print("\n--- RESEARCH RESULTS ---")
+    print("\nResearch complete.")
+    print("Evaluating company...\n")
 
-    for category, results in research.items():
-        print(f"\n=== {category.upper()} ===")
+    result = score_company(company, research)
 
-        for i, result in enumerate(results, start=1):
-            print(f"\n[{i}] {result['title']}")
-            print(result["content"])
-            print(result["url"])
+    scores = result["scores"]
+
+    print("\n" + "=" * 45)
+    print(f" COMPANY EVALUATION: {result['company']}")
+    print("=" * 45)
+
+    print(f"Jira / Atlassian:       {scores['jira_usage']:>2}/25")
+    print(f"Complexity:              {scores['complexity']:>2}/20")
+    print(f"Digital clutter risk:    {scores['clutter_risk']:>2}/20")
+    print(f"AI relevance:            {scores['ai_relevance']:>2}/15")
+    print(f"Growth / change:         {scores['growth_change']:>2}/10")
+    print(f"Buyer identifiability:   {scores['buyer_identifiability']:>2}/10")
+
+    print("-" * 45)
+    print(f"TOTAL SCORE:             {result['total_score']:>2}/100")
+    print(f"CONFIDENCE:              {result['confidence'].upper()}")
+
+    print("\nSummary:")
+    print(result["summary"])
 
 
 if __name__ == "__main__":
